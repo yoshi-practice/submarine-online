@@ -4,9 +4,33 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var helmet = require('helmet');
-
+var session = require('express-session');
+var passport = require('passport');
+var Strategy = require('passport-twitter').Strategy;
+var config = require('./config');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+
+passport.use(new Strategy({
+  consumerKey: config.twitter.consumerKey,
+    consumerSecret: config.twitter.consumerSecret,
+    callbackURL: config.twitter.callbackURL
+  },
+  function(token, tokenSecret, profile, cb) {
+    process.nextTick(function () {
+      return cb(null, profile);
+    });
+  })
+);
+
+passport.serializeUser(function(user, cb) {
+  cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+  cb(null, obj);
+});
 
 var app = express();
 app.use(helmet());
